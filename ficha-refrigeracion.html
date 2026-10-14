@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ficha de Levantamiento - Activos de Refrigeración</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --text: #202124;
+      --muted: #5f6368;
+      --border: #dadce0;
+      --success: #0d904f;
+      --danger: #d93025;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      padding: 12px;
+      padding-bottom: 90px;
+    }
+    h1 {
+      font-size: 1.25rem;
+      text-align: center;
+      margin-bottom: 16px;
+      color: var(--primary);
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 480px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #fff;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(26,115,232,.2);
+    }
+    textarea { resize: vertical; min-height: 60px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:active { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-sm { padding: 6px 10px; font-size: 0.8rem; }
+    .section-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fafbfc;
+      position: relative;
+    }
+    .section-item .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+    .photo-box {
+      margin-top: 8px;
+    }
+    .photo-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .photo-preview img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .photo-preview .thumb-wrap {
+      position: relative;
+    }
+    .photo-preview .thumb-wrap button {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: none;
+      background: var(--danger);
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .actions-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      box-shadow: 0 -2px 10px rgba(0,0,0,.1);
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      z-index: 100;
+    }
+    .status {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .status.saved { color: var(--success); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 6px;
+      text-align: left;
+    }
+    th { background: #e8f0fe; }
+    .comp-row input { padding: 6px; font-size: 0.85rem; }
+    .add-row { margin-top: 8px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Ficha de Levantamiento<br>Activos de Refrigeración</h1>
+  <div id="status" class="status">Listo para capturar datos</div>
+
+  <!-- Información General -->
+  <div class="card">
+    <h2>Información General</h2>
+    <div class="grid grid-2">
+      <div>
+        <label>Cliente</label>
+        <input type="text" id="cliente" placeholder="Nombre del cliente">
+      </div>
+      <div>
+        <label>Local</label>
+        <input type="text" id="local" placeholder="Nombre del local">
+      </div>
+      <div>
+        <label>Ciudad</label>
+        <input type="text" id="ciudad" placeholder="Ciudad">
+      </div>
+      <div>
+        <label>Dirección</label>
+        <input type="text" id="direccion" placeholder="Dirección completa">
+      </div>
+      <div>
+        <label>Fecha</label>
+        <input type="date" id="fecha">
+      </div>
+      <div>
+        <label>Técnico</label>
+        <input type="text" id="tecnico" placeholder="Nombre del técnico">
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Rack -->
+  <div class="card">
+    <h2>1. Rack de Refrigeración</h2>
+    <div id="racks-container"></div>
+    <button type="button" class="btn btn-outline btn-sm" onclick="addRack()">+ Agregar Rack</button>
+  </div>
+
+  <!-- 2. Condensadores -->
+  <div class="card">
+    <h2>2. Condensadores</h2>
+    <div id="condensadores-container"></div>
+    <button type="button" class="btn btn-outline btn-sm" onclick="addCondensador()">+ Agregar Condensador</button>
+  </div>
+
+  <!-- 3. Evaporadores -->
+  <div class="card">
+    <h2>3. Evaporadores de Cámara</h2>
+    <div id="evaporadores-container"></div>
+    <button type="button" class="btn btn-outline btn-sm" onclick="addEvaporador()">+ Agregar Evaporador</button>
+  </div>
+
+  <!-- 4. Exhibidores -->
+  <div class="card">
+    <h2>4. Exhibidores</h2>
+    <div id="exhibidores-container"></div>
+    <button type="button" class="btn btn-outline btn-sm" onclick="addExhibidor()">+ Agregar Exhibidor</button>
+  </div>
+
+  <!-- Barra de acciones -->
+  <div class="actions-bar">
+    <button class="btn btn-primary" onclick="guardarDatos()">💾 Guardar</button>
+    <button class="btn btn-success" onclick="generarJSON()">⬇ JSON</button>
+    <button class="btn btn-success" onclick="generarPDF()">📄 PDF</button>
+    <button class="btn btn-outline" onclick="limpiarTodo()">🗑 Limpiar</button>
+  </div>
+
+  <script>
+    // ========== UTILIDADES ==========
+    const STORAGE_KEY = 'ficha_refri_data';
+    const EXPIRY_MS = 48 * 60 * 60 * 1000; // 48 horas
+
+    function setStatus(msg, isSaved = false) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status' + (isSaved ? ' saved' : '');
+    }
+
+    function uid() {
+      return 'id_' + Math.random().toString(36).slice(2, 11);
+    }
+
+    // ========== GUARDADO (localStorage con expiración 48h) ==========
+    // Nota: cookies tienen límite ~4KB, por eso usamos localStorage (más capacidad para fotos base64)
+    function guardarDatos() {
+      const data = recolectarDatos();
+      const payload = {
+        data,
+        savedAt: Date.now()
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        setStatus('✓ Guardado (válido 48h)', true);
+      } catch (e) {
+        setStatus('Error al guardar (¿fotos muy pesadas?)', false);
+        console.error(e);
+      }
+    }
+
+    function cargarDatos() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const payload = JSON.parse(raw);
+        if (Date.now() - payload.savedAt > EXPIRY_MS) {
+          localStorage.removeItem(STORAGE_KEY);
+          setStatus('Datos anteriores expirados (48h)', false);
+          return null;
+        }
+        return payload.data;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // ========== RECOLECCIÓN DE DATOS ==========
+    function recolectarDatos() {
+      return {
+        general: {
+          cliente: document.getElementById('cliente').value,
+          local: document.getElementById('local').value,
+          ciudad: document.getElementById('ciudad').value,
+          direccion: document.getElementById('direccion').value,
+          fecha: document.getElementById('fecha').value,
+          tecnico: document.getElementById('tecnico').value
+        },
+        racks: Array.from(document.querySelectorAll('.rack-item')).map(el => ({
+          id: el.dataset.id,
+          marca: el.querySelector('[data-field="marca"]').value,
+          modelo: el.querySelector('[data-field="modelo"]').value,
+          refrigerante: el.querySelector('[data-field="refrigerante"]').value,
+          observaciones: el.querySelector('[data-field="observaciones"]').value,
+          fotos: getFotos(el),
+          compresores: Array.from(el.querySelectorAll('.comp-row')).map(row => ({
+            marca: row.querySelector('[data-c="marca"]').value,
+            modelo: row.querySelector('[data-c="modelo"]').value,
+            serie: row.querySelector('[data-c="serie"]').value,
+            foto: row.querySelector('[data-c="foto"]')?.dataset.base64 || ''
+          }))
+        })),
+        condensadores: Array.from(document.querySelectorAll('.cond-item')).map(el => ({
+          id: el.dataset.id,
+          marca: el.querySelector('[data-field="marca"]').value,
+          modelo: el.querySelector('[data-field="modelo"]').value,
+          serie: el.querySelector('[data-field="serie"]').value,
+          cantVent: el.querySelector('[data-field="cantVent"]').value,
+          marcaVent: el.querySelector('[data-field="marcaVent"]').value,
+          modeloVent: el.querySelector('[data-field="modeloVent"]').value,
+          diamAro: el.querySelector('[data-field="diamAro"]').value,
+          diamAspa: el.querySelector('[data-field="diamAspa"]').value,
+          observaciones: el.querySelector('[data-field="observaciones"]').value,
+          fotos: getFotos(el)
+        })),
+        evaporadores: Array.from(document.querySelectorAll('.evap-item')).map(el => ({
+          id: el.dataset.id,
+          codigo: el.querySelector('[data-field="codigo"]').value,
+          marca: el.querySelector('[data-field="marca"]').value,
+          modelo: el.querySelector('[data-field="modelo"]').value,
+          serie: el.querySelector('[data-field="serie"]').value,
+          cantVent: el.querySelector('[data-field="cantVent"]').value,
+          marcaVent: el.querySelector('[data-field="marcaVent"]').value,
+          modeloVent: el.querySelector('[data-field="modeloVent"]').value,
+          observaciones: el.querySelector('[data-field="observaciones"]').value,
+          fotos: getFotos(el)
+        })),
+        exhibidores: Array.from(document.querySelectorAll('.exh-item')).map(el => ({
+          id: el.dataset.id,
+          codigo: el.querySelector('[data-field="codigo"]').value,
+          ubicacion: el.querySelector('[data-field="ubicacion"]').value,
+          medida: el.querySelector('[data-field="medida"]').value,
+          tipoMerc: el.querySelector('[data-field="tipoMerc"]').value,
+          marca: el.querySelector('[data-field="marca"]').value,
+          modelo: el.querySelector('[data-field="modelo"]').value,
+          serie: el.querySelector('[data-field="serie"]').value,
+          observaciones: el.querySelector('[data-field="observaciones"]').value,
+          fotos: getFotos(el)
+        }))
+      };
+    }
+
+    function getFotos(container) {
+      return Array.from(container.querySelectorAll('.photo-preview img')).map(img => img.src);
+    }
+
+    // ========== FOTOS ==========
+    function handlePhoto(input, previewId) {
+      const files = input.files;
+      if (!files.length) return;
+      const preview = document.getElementById(previewId);
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          const wrap = document.createElement('div');
+          wrap.className = 'thumb-wrap';
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.alt = 'foto';
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = '×';
+          btn.onclick = () => wrap.remove();
+          wrap.appendChild(img);
+          wrap.appendChild(btn);
+          preview.appendChild(wrap);
+        };
+        reader.readAsDataURL(file);
+      });
+      input.value = '';
+    }
+
+    function handleCompPhoto(input, row) {
+      const file = input.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        input.dataset.base64 = e.target.result;
+        let prev = row.querySelector('.comp-thumb');
+        if (prev) prev.remove();
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'comp-thumb';
+        img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:4px;margin-left:4px;';
+        input.parentNode.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ========== RACKS ==========
+    function addRack(data = null) {
+      const id = data?.id || uid();
+      const html = `
+        <div class="section-item rack-item" data-id="${id}">
+          <button type="button" class="btn btn-danger btn-sm remove-btn" onclick="this.closest('.rack-item').remove()">×</button>
+          <div class="grid grid-2">
+            <div><label>Marca</label><input type="text" data-field="marca" value="${data?.marca || ''}"></div>
+            <div><label>Modelo</label><input type="text" data-field="modelo" value="${data?.modelo || ''}"></div>
+            <div><label>Refrigerante</label><input type="text" data-field="refrigerante" value="${data?.refrigerante || ''}"></div>
+            <div><label>Observaciones</label><input type="text" data-field="observaciones" value="${data?.observaciones || ''}"></div>
+          </div>
+          <div class="photo-box">
+            <label>Fotografías</label>
+            <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhoto(this, 'preview-rack-${id}')">
+            <div class="photo-preview" id="preview-rack-${id}"></div>
+          </div>
+          <h3 style="font-size:0.9rem;margin:12px 0 6px;">Compresores del Rack</h3>
+          <table>
+            <thead>
+              <tr><th>No.</th><th>Marca</th><th>Modelo</th><th>Serie</th><th>Foto placa</th><th></th></tr>
+            </thead>
+            <tbody class="comp-body"></tbody>
+          </table>
+          <button type="button" class="btn btn-outline btn-sm add-row" onclick="addCompRow(this)">+ Compresor</button>
+        </div>`;
+      document.getElementById('racks-container').insertAdjacentHTML('beforeend', html);
+      const item = document.querySelector(`.rack-item[data-id="${id}"]`);
+      if (data?.fotos) {
+        const preview = item.querySelector(`#preview-rack-${id}`);
+        data.fotos.forEach(src => {
+          const wrap = document.createElement('div');
+          wrap.className = 'thumb-wrap';
+          const img = document.createElement('img');
+          img.src = src;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = '×';
+          btn.onclick = () => wrap.remove();
+          wrap.appendChild(img);
+          wrap.appendChild(btn);
+          preview.appendChild(wrap);
+        });
+      }
+      if (data?.compresores?.length) {
+        data.compresores.forEach(c => addCompRow(item.querySelector('.add-row'), c));
+      } else {
+        addCompRow(item.querySelector('.add-row'));
+      }
+    }
+
+    function addCompRow(btn, data = null) {
+      const tbody = btn.closest('.section-item').querySelector('.comp-body');
+      const n = tbody.children.length + 1;
+      const tr = document.createElement('tr');
+      tr.className = 'comp-row';
+      tr.innerHTML = `
+        <td>${n}</td>
+        <td><input type="text" data-c="marca" value="${data?.marca || ''}"></td>
+        <td><input type="text" data-c="modelo" value="${data?.modelo || ''}"></td>
+        <td><input type="text" data-c="serie" value="${data?.serie || ''}"></td>
+        <td>
+          <input type="file" accept="image/*" capture="environment" style="width:90px;font-size:0.7rem;"
+            onchange="handleCompPhoto(this, this.closest('tr'))" data-c="foto" ${data?.foto ? `data-base64="${data.foto}"` : ''}>
+        </td>
+        <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">×</button></td>`;
+      tbody.appendChild(tr);
+      if (data?.foto) {
+        const img = document.createElement('img');
+        img.src = data.foto;
+        img.className = 'comp-thumb';
+        img.style.cssText = 'width:40px;height:40px;object-fit:cover;border-radius:4px;margin-left:4px;';
+        tr.querySelector('td:nth-child(5)').appendChild(img);
+      }
+    }
+
+    // ========== CONDENSADORES ==========
+    function addCondensador(data = null) {
+      const id = data?.id || uid();
+      const html = `
+        <div class="section-item cond-item" data-id="${id}">
+          <button type="button" class="btn btn-danger btn-sm remove-btn" onclick="this.closest('.cond-item').remove()">×</button>
+          <div class="grid grid-2">
+            <div><label>Marca</label><input type="text" data-field="marca" value="${data?.marca || ''}"></div>
+            <div><label>Modelo</label><input type="text" data-field="modelo" value="${data?.modelo || ''}"></div>
+            <div><label>N° de Serie</label><input type="text" data-field="serie" value="${data?.serie || ''}"></div>
+            <div><label>Cantidad de ventiladores</label><input type="number" data-field="cantVent" value="${data?.cantVent || ''}"></div>
+            <div><label>Marca de ventiladores</label><input type="text" data-field="marcaVent" value="${data?.marcaVent || ''}"></div>
+            <div><label>Modelo de ventiladores</label><input type="text" data-field="modeloVent" value="${data?.modeloVent || ''}"></div>
+            <div><label>Diámetro del aro (hueco)</label><input type="text" data-field="diamAro" value="${data?.diamAro || ''}"></div>
+            <div><label>Diámetro del aspa</label><input type="text" data-field="diamAspa" value="${data?.diamAspa || ''}"></div>
+            <div style="grid-column:1/-1"><label>Observaciones</label><input type="text" data-field="observaciones" value="${data?.observaciones || ''}"></div>
+          </div>
+          <div class="photo-box">
+            <label>Fotografías (general / placa)</label>
+            <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhoto(this, 'preview-cond-${id}')">
+            <div class="photo-preview" id="preview-cond-${id}"></div>
+          </div>
+        </div>`;
+      document.getElementById('condensadores-container').insertAdjacentHTML('beforeend', html);
+      if (data?.fotos) {
+        const preview = document.getElementById(`preview-cond-${id}`);
+        data.fotos.forEach(src => {
+          const wrap = document.createElement('div');
+          wrap.className = 'thumb-wrap';
+          const img = document.createElement('img');
+          img.src = src;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = '×';
+          btn.onclick = () => wrap.remove();
+          wrap.appendChild(img);
+          wrap.appendChild(btn);
+          preview.appendChild(wrap);
+        });
+      }
+    }
+
+    // ========== EVAPORADORES ==========
+    function addEvaporador(data = null) {
+      const id = data?.id || uid();
+      const html = `
+        <div class="section-item evap-item" data-id="${id}">
+          <button type="button" class="btn btn-danger btn-sm remove-btn" onclick="this.closest('.evap-item').remove()">×</button>
+          <div class="grid grid-2">
+            <div><label>Código / Identificación</label><input type="text" data-field="codigo" value="${data?.codigo || ''}"></div>
+            <div><label>Marca</label><input type="text" data-field="marca" value="${data?.marca || ''}"></div>
+            <div><label>Modelo</label><input type="text" data-field="modelo" value="${data?.modelo || ''}"></div>
+            <div><label>N° de Serie</label><input type="text" data-field="serie" value="${data?.serie || ''}"></div>
+            <div><label>Cantidad de ventiladores</label><input type="number" data-field="cantVent" value="${data?.cantVent || ''}"></div>
+            <div><label>Marca de ventiladores</label><input type="text" data-field="marcaVent" value="${data?.marcaVent || ''}"></div>
+            <div><label>Modelo de ventiladores</label><input type="text" data-field="modeloVent" value="${data?.modeloVent || ''}"></div>
+            <div style="grid-column:1/-1"><label>Observaciones</label><input type="text" data-field="observaciones" value="${data?.observaciones || ''}"></div>
+          </div>
+          <div class="photo-box">
+            <label>Fotografías (general / placa)</label>
+            <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhoto(this, 'preview-evap-${id}')">
+            <div class="photo-preview" id="preview-evap-${id}"></div>
+          </div>
+        </div>`;
+      document.getElementById('evaporadores-container').insertAdjacentHTML('beforeend', html);
+      if (data?.fotos) {
+        const preview = document.getElementById(`preview-evap-${id}`);
+        data.fotos.forEach(src => {
+          const wrap = document.createElement('div');
+          wrap.className = 'thumb-wrap';
+          const img = document.createElement('img');
+          img.src = src;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = '×';
+          btn.onclick = () => wrap.remove();
+          wrap.appendChild(img);
+          wrap.appendChild(btn);
+          preview.appendChild(wrap);
+        });
+      }
+    }
+
+    // ========== EXHIBIDORES ==========
+    function addExhibidor(data = null) {
+      const id = data?.id || uid();
+      const html = `
+        <div class="section-item exh-item" data-id="${id}">
+          <button type="button" class="btn btn-danger btn-sm remove-btn" onclick="this.closest('.exh-item').remove()">×</button>
+          <div class="grid grid-2">
+            <div><label>Código / Identificación</label><input type="text" data-field="codigo" value="${data?.codigo || ''}"></div>
+            <div><label>Ubicación</label><input type="text" data-field="ubicacion" value="${data?.ubicacion || ''}"></div>
+            <div><label>Medida (Largo mm)</label><input type="text" data-field="medida" value="${data?.medida || ''}"></div>
+            <div><label>Tipo de mercadería</label><input type="text" data-field="tipoMerc" value="${data?.tipoMerc || ''}"></div>
+            <div><label>Marca</label><input type="text" data-field="marca" value="${data?.marca || ''}"></div>
+            <div><label>Modelo</label><input type="text" data-field="modelo" value="${data?.modelo || ''}"></div>
+            <div><label>N° de Serie</label><input type="text" data-field="serie" value="${data?.serie || ''}"></div>
+            <div style="grid-column:1/-1"><label>Observaciones</label><input type="text" data-field="observaciones" value="${data?.observaciones || ''}"></div>
+          </div>
+          <div class="photo-box">
+            <label>Fotografías (general / placa)</label>
+            <input type="file" accept="image/*" capture="environment" multiple onchange="handlePhoto(this, 'preview-exh-${id}')">
+            <div class="photo-preview" id="preview-exh-${id}"></div>
+          </div>
+        </div>`;
+      document.getElementById('exhibidores-container').insertAdjacentHTML('beforeend', html);
+      if (data?.fotos) {
+        const preview = document.getElementById(`preview-exh-${id}`);
+        data.fotos.forEach(src => {
+          const wrap = document.createElement('div');
+          wrap.className = 'thumb-wrap';
+          const img = document.createElement('img');
+          img.src = src;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = '×';
+          btn.onclick = () => wrap.remove();
+          wrap.appendChild(img);
+          wrap.appendChild(btn);
+          preview.appendChild(wrap);
+        });
+      }
+    }
+
+    // ========== JSON ==========
+    function generarJSON() {
+      const data = recolectarDatos();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const nombre = (data.general.local || 'local').replace(/\s+/g, '_') + '_' + (data.general.fecha || 'sinfecha');
+      a.download = `ficha_${nombre}.json`;
+      a.click();
+      setStatus('JSON descargado', true);
+    }
+
+    // ========== PDF ==========
+    function generarPDF() {
+      const data = recolectarDatos();
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const margin = 12;
+      const usableW = pageW - margin * 2;
+      let y = 14;
+      let anexoNum = 1;
+      const anexos = []; // {num, label, src}
+      const PAGE_BOTTOM = 275;
+
+      function checkPage(need = 12) {
+        if (y + need > PAGE_BOTTOM) {
+          doc.addPage();
+          y = 14;
+          return true;
+        }
+        return false;
+      }
+
+      // Fuerza nueva página si el bloque completo no cabe
+      function ensureSpace(need) {
+        if (y + need > PAGE_BOTTOM) {
+          doc.addPage();
+          y = 14;
+        }
+      }
+
+      function addTitle(txt, size = 13) {
+        ensureSpace(size + 20); // título + algo de contenido mínimo
+        doc.setFontSize(size);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(26, 115, 232);
+        doc.text(txt, margin, y);
+        doc.setTextColor(0, 0, 0);
+        y += size * 0.45 + 5;
+      }
+
+      // Dibuja tabla (headers + filas). Devuelve la altura usada.
+      function drawTable(headers, rows, colWidths) {
+        const rowH = 7.2;
+        const headerH = 8;
+        const totalW = colWidths.reduce((a, b) => a + b, 0);
+        const startX = margin;
+        const totalH = headerH + rows.length * rowH + 4;
+
+        ensureSpace(totalH);
+
+        function drawRow(cells, isHeader, yPos) {
+          let x = startX;
+          const h = isHeader ? headerH : rowH;
+          const rectTop = yPos - 4.5; // menos agresivo para no tapar títulos
+          doc.setDrawColor(180);
+          doc.setLineWidth(0.25);
+          if (isHeader) {
+            doc.setFillColor(232, 240, 254);
+            doc.rect(startX, rectTop, totalW, h, 'F');
+          }
+          cells.forEach((cell, i) => {
+            const w = colWidths[i];
+            doc.rect(x, rectTop, w, h);
+            doc.setFontSize(isHeader ? 8.5 : 8);
+            doc.setFont(undefined, isHeader ? 'bold' : 'normal');
+            const txt = String(cell || '-');
+            const lines = doc.splitTextToSize(txt, w - 3);
+            doc.text(lines[0] || '', x + 1.5, yPos);
+            x += w;
+          });
+        }
+
+        drawRow(headers, true, y);
+        y += headerH;
+
+        rows.forEach(row => {
+          // Si una fila no cabe, nueva página y redibuja header
+          if (y + rowH > PAGE_BOTTOM) {
+            doc.addPage();
+            y = 14;
+            drawRow(headers, true, y);
+            y += headerH;
+          }
+          drawRow(row, false, y);
+          y += rowH;
+        });
+        y += 5;
+      }
+
+      // Recolecta 1 o más fotos → "Anexo 1, Anexo 2, ..."
+      function collectFotos(fotos, labelBase) {
+        if (!fotos || !fotos.length) return 'Sin fotos';
+        const nums = [];
+        fotos.forEach((src, i) => {
+          anexos.push({ num: anexoNum, label: `${labelBase} - Foto ${i + 1}`, src });
+          nums.push(`Anexo ${anexoNum}`);
+          anexoNum++;
+        });
+        return nums.join(', ');
+      }
+
+      // ===== TÍTULO =====
+      doc.setFontSize(15);
+      doc.setFont(undefined, 'bold');
+      doc.text('Ficha de Levantamiento de Activos de Refrigeración', pageW / 2, y, { align: 'center' });
+      y += 10;
+
+      // ===== INFORMACIÓN GENERAL (dos columnas, SIN tabla) =====
+      addTitle('Información General', 12);
+      const genLeft = [
+        ['Cliente', data.general.cliente || '-'],
+        ['Local', data.general.local || '-'],
+        ['Ciudad', data.general.ciudad || '-']
+      ];
+      const genRight = [
+        ['Dirección', data.general.direccion || '-'],
+        ['Fecha', data.general.fecha || '-'],
+        ['Técnico', data.general.tecnico || '-']
+      ];
+      const col1X = margin;
+      const col2X = margin + usableW / 2 + 4;
+      const lineH = 6.5;
+      ensureSpace(genLeft.length * lineH + 4);
+
+      doc.setFontSize(9.5);
+      for (let i = 0; i < genLeft.length; i++) {
+        // izquierda
+        doc.setFont(undefined, 'bold');
+        doc.text(genLeft[i][0] + ':', col1X, y);
+        doc.setFont(undefined, 'normal');
+        doc.text(genLeft[i][1], col1X + 28, y);
+        // derecha
+        doc.setFont(undefined, 'bold');
+        doc.text(genRight[i][0] + ':', col2X, y);
+        doc.setFont(undefined, 'normal');
+        doc.text(genRight[i][1], col2X + 28, y);
+        y += lineH;
+      }
+      y += 6;
+
+      // ===== 1. RACKS =====
+      if (data.racks.length) {
+        addTitle('1. Rack de Refrigeración', 12);
+        data.racks.forEach((r, idx) => {
+          const fotosRef = collectFotos(r.fotos, `Rack #${idx + 1}`);
+          // Estimar espacio: título + tabla 5 filas + compresores
+          const estH = 10 + 5 * 8 + (r.compresores?.length ? 20 + r.compresores.length * 8 : 0);
+          ensureSpace(estH);
+
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'bold');
+          doc.text(`Rack #${idx + 1}`, margin, y);
+          y += 8; // espacio suficiente para que no tape el título
+
+          const rackRows = [
+            ['Marca', r.marca || '-'],
+            ['Modelo', r.modelo || '-'],
+            ['Refrigerante', r.refrigerante || '-'],
+            ['Observaciones', r.observaciones || '-'],
+            ['Fotografías', fotosRef]
+          ];
+          drawTable(['Campo', 'Información'], rackRows, [45, usableW - 45]);
+
+          if (r.compresores?.length) {
+            const compHeaders = ['No.', 'Marca', 'Modelo', 'Serie', 'Foto placa'];
+            const compRows = r.compresores.map((c, ci) => {
+              let fotoRef = '-';
+              if (c.foto) {
+                anexos.push({ num: anexoNum, label: `Rack #${idx + 1} Compresor ${ci + 1} - Placa`, src: c.foto });
+                fotoRef = `Anexo ${anexoNum}`;
+                anexoNum++;
+              }
+              return [String(ci + 1), c.marca || '-', c.modelo || '-', c.serie || '-', fotoRef];
+            });
+            ensureSpace(14 + compRows.length * 8);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.text('Compresores del rack:', margin, y);
+            y += 8; // espacio suficiente
+            drawTable(compHeaders, compRows, [12, 40, 40, 45, usableW - 137]);
+          }
+          y += 4;
+        });
+      }
+
+      // ===== 2. CONDENSADORES =====
+      if (data.condensadores.length) {
+        addTitle('2. Condensadores', 12);
+        data.condensadores.forEach((c, idx) => {
+          const fotosRef = collectFotos(c.fotos, `Condensador #${idx + 1}`);
+          const estH = 14 + 11 * 8;
+          ensureSpace(estH);
+
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'bold');
+          doc.text(`Condensador #${idx + 1}`, margin, y);
+          y += 8;
+
+          const rows = [
+            ['Marca', c.marca || '-'],
+            ['Modelo', c.modelo || '-'],
+            ['N° de Serie', c.serie || '-'],
+            ['Cant. ventiladores', c.cantVent || '-'],
+            ['Marca ventiladores', c.marcaVent || '-'],
+            ['Modelo ventiladores', c.modeloVent || '-'],
+            ['Diámetro del aro', c.diamAro || '-'],
+            ['Diámetro del aspa', c.diamAspa || '-'],
+            ['Observaciones', c.observaciones || '-'],
+            ['Fotografías', fotosRef]
+          ];
+          drawTable(['Campo', 'Información'], rows, [50, usableW - 50]);
+          y += 2;
+        });
+      }
+
+      // ===== 3. EVAPORADORES =====
+      if (data.evaporadores.length) {
+        addTitle('3. Evaporadores de Cámara', 12);
+        data.evaporadores.forEach((e, idx) => {
+          const fotosRef = collectFotos(e.fotos, `Evaporador #${idx + 1}`);
+          ensureSpace(14 + 10 * 8);
+
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'bold');
+          doc.text(`Evaporador #${idx + 1}`, margin, y);
+          y += 8;
+
+          const rows = [
+            ['Código / Identificación', e.codigo || '-'],
+            ['Marca', e.marca || '-'],
+            ['Modelo', e.modelo || '-'],
+            ['N° de Serie', e.serie || '-'],
+            ['Cant. ventiladores', e.cantVent || '-'],
+            ['Marca ventiladores', e.marcaVent || '-'],
+            ['Modelo ventiladores', e.modeloVent || '-'],
+            ['Observaciones', e.observaciones || '-'],
+            ['Fotografías', fotosRef]
+          ];
+          drawTable(['Campo', 'Información'], rows, [50, usableW - 50]);
+          y += 3;
+        });
+      }
+
+      // ===== 4. EXHIBIDORES =====
+      if (data.exhibidores.length) {
+        addTitle('4. Exhibidores', 12);
+        data.exhibidores.forEach((e, idx) => {
+          const fotosRef = collectFotos(e.fotos, `Exhibidor #${idx + 1}`);
+          ensureSpace(14 + 10 * 8);
+
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'bold');
+          doc.text(`Exhibidor #${idx + 1}`, margin, y);
+          y += 8;
+
+          const rows = [
+            ['Código / Identificación', e.codigo || '-'],
+            ['Ubicación', e.ubicacion || '-'],
+            ['Medida (Largo mm)', e.medida || '-'],
+            ['Tipo de mercadería', e.tipoMerc || '-'],
+            ['Marca', e.marca || '-'],
+            ['Modelo', e.modelo || '-'],
+            ['N° de Serie', e.serie || '-'],
+            ['Observaciones', e.observaciones || '-'],
+            ['Fotografías', fotosRef]
+          ];
+          drawTable(['Campo', 'Información'], rows, [50, usableW - 50]);
+          y += 2;
+        });
+      }
+
+      // ===== ANEXOS FOTOGRÁFICOS =====
+      if (anexos.length) {
+        doc.addPage();
+        y = 14;
+        addTitle('Anexos Fotográficos', 13);
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text('Las siguientes imágenes corresponden a los equipos registrados en las tablas anteriores.', margin, y);
+        y += 8;
+
+        anexos.forEach(a => {
+          const maxW = usableW;
+          const maxH = 115;
+          ensureSpace(maxH + 16);
+
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'bold');
+          doc.text(`Anexo ${a.num}: ${a.label}`, margin, y);
+          y += 5;
+
+          try {
+            const format = a.src.indexOf('image/png') > -1 ? 'PNG' : 'JPEG';
+            doc.addImage(a.src, format, margin, y, maxW, maxH);
+            y += maxH + 10;
+          } catch (err) {
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(9);
+            doc.text('(No se pudo cargar la imagen)', margin, y);
+            y += 8;
+          }
+        });
+      }
+
+      // Pie de página
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(100);
+        doc.text(`Página ${i} de ${totalPages}`, pageW / 2, 290, { align: 'center' });
+        doc.setTextColor(0);
+      }
+
+      const nombre = (data.general.local || 'local').replace(/\s+/g, '_') + '_' + (data.general.fecha || 'sinfecha');
+      doc.save(`ficha_${nombre}.pdf`);
+      setStatus('PDF generado correctamente', true);
+    }
+
+    // ========== LIMPIAR ==========
+    function limpiarTodo() {
+      if (!confirm('¿Borrar todos los datos del formulario y del almacenamiento?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById('cliente').value = '';
+      document.getElementById('local').value = '';
+      document.getElementById('ciudad').value = '';
+      document.getElementById('direccion').value = '';
+      document.getElementById('fecha').value = '';
+      document.getElementById('tecnico').value = '';
+      document.getElementById('racks-container').innerHTML = '';
+      document.getElementById('condensadores-container').innerHTML = '';
+      document.getElementById('evaporadores-container').innerHTML = '';
+      document.getElementById('exhibidores-container').innerHTML = '';
+      addRack();
+      setStatus('Formulario limpio', false);
+    }
+
+    // ========== INICIO ==========
+    (function init() {
+      // Fecha de hoy por defecto
+      const hoy = new Date().toISOString().slice(0, 10);
+      document.getElementById('fecha').value = hoy;
+
+      const saved = cargarDatos();
+      if (saved) {
+        document.getElementById('cliente').value = saved.general?.cliente || '';
+        document.getElementById('local').value = saved.general?.local || '';
+        document.getElementById('ciudad').value = saved.general?.ciudad || '';
+        document.getElementById('direccion').value = saved.general?.direccion || '';
+        document.getElementById('fecha').value = saved.general?.fecha || hoy;
+        document.getElementById('tecnico').value = saved.general?.tecnico || '';
+
+        (saved.racks || []).forEach(r => addRack(r));
+        (saved.condensadores || []).forEach(c => addCondensador(c));
+        (saved.evaporadores || []).forEach(e => addEvaporador(e));
+        (saved.exhibidores || []).forEach(e => addExhibidor(e));
+
+        if (!saved.racks?.length) addRack();
+        setStatus('Datos restaurados (válidos 48h)', true);
+      } else {
+        addRack();
+      }
+    })();
+
+    // Auto-guardar cada 30s si hay cambios
+    setInterval(() => {
+      const data = recolectarDatos();
+      if (data.general.cliente || data.general.local || data.racks.length > 1 || data.condensadores.length || data.evaporadores.length || data.exhibidores.length) {
+        guardarDatos();
+      }
+    }, 30000);
+  </script>
+</body>
+</html>
