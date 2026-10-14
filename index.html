@@ -340,13 +340,12 @@
   </div>
 
   <!-- Modal elegir Cámara o Galería -->
-  <div class="photo-modal-overlay" id="photoModal">
+  <div class="photo-modal-overlay" id="photoModal" onclick="if(event.target===this) closePhotoModal()">
     <div class="photo-modal">
       <h3>¿Cómo quieres agregar la foto?</h3>
       <div class="photo-modal-btns">
         <button type="button" onclick="choosePhotoSource('camera')">📷 Tomar foto (cámara)</button>
         <button type="button" onclick="choosePhotoSource('gallery')">🖼️ Elegir de galería / archivos</button>
-        <button type="button" class="cancel" onclick="closePhotoModal()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -783,7 +782,36 @@
     }
 
     // ========== PDF ==========
-    function generarPDF() {
+    // Comprime imagen (reduce resolución y calidad JPEG) sin perder detalle útil
+    function compressImage(dataUrl, maxSide = 1280, quality = 0.72) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxSide || h > maxSide) {
+            if (w > h) {
+              h = Math.round(h * maxSide / w);
+              w = maxSide;
+            } else {
+              w = Math.round(w * maxSide / h);
+              h = maxSide;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      });
+    }
+
+    async function generarPDF() {
+      setStatus('Generando PDF...', false);
       const data = recolectarDatos();
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -1063,7 +1091,7 @@
         doc.text('Las siguientes imágenes corresponden a los equipos registrados en las tablas anteriores.', margin, y);
         y += 8;
 
-        anexos.forEach(a => {
+        for (const a of anexos) {
           const maxW = usableW;
           const maxH = 115;
           ensureSpace(maxH + 16);
@@ -1074,8 +1102,9 @@
           y += 5;
 
           try {
-            const format = a.src.indexOf('image/png') > -1 ? 'PNG' : 'JPEG';
-            doc.addImage(a.src, format, margin, y, maxW, maxH);
+            // Comprimir para reducir peso del PDF (máx 1280px, calidad 0.72)
+            const compressed = await compressImage(a.src, 1280, 0.72);
+            doc.addImage(compressed, 'JPEG', margin, y, maxW, maxH);
             y += maxH + 10;
           } catch (err) {
             doc.setFont(undefined, 'normal');
@@ -1083,7 +1112,7 @@
             doc.text('(No se pudo cargar la imagen)', margin, y);
             y += 8;
           }
-        });
+        }
       }
 
       // Pie de página
